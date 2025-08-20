@@ -126,26 +126,53 @@ public_users.get('/author/:author', async function (req, res) {
 });
 
 // Get all books based on title
-public_users.get('/title/:title', function (req, res) {
+// public_users.get('/title/:title', function (req, res) {
 
-    const title = req.params.title;
-    let results = [];
+//     const title = req.params.title;
+//     let results = [];
 
-    const keys = Object.keys(books);
+//     const keys = Object.keys(books);
 
-    for (let i = 0; i < keys.length; i++) {
-        let isbn = keys[i];
-        if (books[isbn].title.toLowerCase() === title.toLowerCase()) {
-            results.push({ isbn: isbn, ...books[isbn] });
-        }
+//     for (let i = 0; i < keys.length; i++) {
+//         let isbn = keys[i];
+//         if (books[isbn].title.toLowerCase() === title.toLowerCase()) {
+//             results.push({ isbn: isbn, ...books[isbn] });
+//         }
+//     }
+
+//     if (results.length > 0) {
+//         res.send(JSON.stringify(results, null, 4));
+//     } else {
+//         res.status(404).send({ message: "Title not found." });
+//     }
+// });
+
+public_users.get('/title/:title', async function (req, res) {
+    try{
+        const title = req.params.title.toLowerCase();
+
+        const results = await new Promise((resolve, reject) => {
+            let foundTitle = [];
+            const keys = Object.keys(books);
+
+            for (let i = 0; i < keys.length; i++) {
+                let isbn = keys[i];
+                if (books[isbn].title.toLowerCase() === title) {
+                    foundTitle.push({ isbn: isbn, ...books[isbn] });
+                }
+            }
+            if (foundTitle.length > 0) {
+                resolve(foundTitle);
+            } else {
+                reject("Title not found.")
+            }
+        });
+        return res.send(JSON.stringify(results, null, 4));
+    } catch (err) {
+        return res.status(404).send({ message: err });
     }
+})
 
-    if (results.length > 0) {
-        res.send(JSON.stringify(results, null, 4));
-    } else {
-        res.status(404).send({ message: "Title not found." });
-    }
-});
 
 //  Get book review
 public_users.get('/review/:isbn', function (req, res) {
