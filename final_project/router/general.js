@@ -44,7 +44,7 @@ public_users.get('/author/:author',function (req, res) {
             results.push({ isbn: isbn, ...books[isbn] });
         }
     }
-    
+
     if (results.length > 0) {
         res.send(JSON.stringify(results, null, 4));
     } else {
@@ -54,8 +54,24 @@ public_users.get('/author/:author',function (req, res) {
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  
+    const title = req.params.title;
+    let results = [];
+
+    const keys = Object.keys(books);
+
+    for (let i = 0; i < keys.length; i++) {
+        let isbn = keys[i];
+        if (books[isbn].title.toLowerCase() === title.toLowerCase()) {
+            results.push({ isbn: isbn, ...books[isbn] });
+        }
+    }
+    
+    if (results.length > 0) {
+        res.send(JSON.stringify(results, null, 4));
+    } else {
+        res.status(404).send({ message: "Title not found." });
+    }
 });
 
 //  Get book review
