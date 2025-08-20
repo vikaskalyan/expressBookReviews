@@ -78,24 +78,50 @@ public_users.get('/isbn/:isbn', async function (req, res) {
 });
 
 // Get book details based on author
-public_users.get('/author/:author', function (req, res) {
+// public_users.get('/author/:author', function (req, res) {
 
-    const author = req.params.author;
-    let results = [];
+//     const author = req.params.author;
+//     let results = [];
 
-    const keys = Object.keys(books);
+//     const keys = Object.keys(books);
 
-    for (let i = 0; i < keys.length; i++) {
-        let isbn = keys[i];
-        if (books[isbn].author.toLowerCase() === author.toLowerCase()) {
-            results.push({ isbn: isbn, ...books[isbn] });
-        }
-    }
+//     for (let i = 0; i < keys.length; i++) {
+//         let isbn = keys[i];
+//         if (books[isbn].author.toLowerCase() === author.toLowerCase()) {
+//             results.push({ isbn: isbn, ...books[isbn] });
+//         }
+//     }
 
-    if (results.length > 0) {
-        res.send(JSON.stringify(results, null, 4));
-    } else {
-        res.status(404).send({ message: "Author not found." });
+//     if (results.length > 0) {
+//         res.send(JSON.stringify(results, null, 4));
+//     } else {
+//         res.status(404).send({ message: "Author not found." });
+//     }
+// });
+
+public_users.get('/author/:author', async function (req, res) {
+    try {
+        const author = req.params.author.toLowerCase();
+
+        const results = await new Promise((resolve, reject) => {
+            let foundBooks = [];
+            const keys = Object.keys(books);
+
+            for (let i = 0; i < keys.length; i++) {
+                let isbn = keys[i];
+                if (books[isbn].author.toLowerCase() === author) {
+                    foundBooks.push({ isbn: isbn, ...books[isbn] });
+                }
+            }
+            if (foundBooks.length > 0) {
+                resolve(foundBooks);
+            } else {
+                reject("Author not found.");
+            }
+        });
+        return res.send(JSON.stringify(results, null, 4));
+    } catch (err) {
+        return res.status(404).send({ message: err });
     }
 });
 
